@@ -15,7 +15,7 @@ coordinator = CoordinatorAgent()
 
 @app.get("/")
 def home():
-    return {"message": "Welcome to AutoSecAI 🚀"}
+    return {"message": "Welcome to AutoSecAI Version 1 🚀"}
 
 
 @app.get("/health")

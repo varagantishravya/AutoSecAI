@@ -39,6 +39,7 @@ def changed_files(owner: str, repo: str, pull_request: int):
 @app.post("/review")
 def review_pull_request(request: ReviewRequest):
     return coordinator.review_pull_request(
+        request.owner,
         request.repository,
         request.pull_request
     )

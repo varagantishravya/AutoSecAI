@@ -2,30 +2,31 @@ from app.llm.client import client
 import time
 
 
-class CodeQualityAgent:
+class DocumentationAgent:
 
     def analyze(self, patch: str):
 
         prompt = f"""
-You are an expert Code Quality Reviewer.
+You are an experienced Technical Documentation Reviewer.
 
 Analyze the following GitHub Pull Request.
 
-Focus ONLY on code quality.
+Focus ONLY on documentation.
 
 Check for:
 
-- Poor naming conventions
-- Code duplication
-- Readability
-- Maintainability
-- PEP8 violations
-- Unnecessary complexity
-- Bad coding practices
+- Missing docstrings
+- Missing inline comments
+- Outdated comments
+- README updates required
+- API documentation updates
+- Missing usage examples
+- Missing changelog updates
+- Documentation quality
 
 Return your answer in the following format:
 
-Code Quality Issues:
+Documentation Issues:
 - ...
 
 Severity:
@@ -50,10 +51,10 @@ Patch:
             ]
         )
 
-        print(f"Code Quality Agent took {time.time() - start:.2f} seconds")
+        print(f"Documentation Agent took {time.time() - start:.2f} seconds")
 
         return {
-            "agent": "Code Quality Agent",
+            "agent": "Documentation Agent",
             "status": "Analysis Completed",
             "analysis": response["message"]["content"]
         }

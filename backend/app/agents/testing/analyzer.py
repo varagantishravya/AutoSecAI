@@ -2,30 +2,29 @@ from app.llm.client import client
 import time
 
 
-class CodeQualityAgent:
+class TestingAgent:
 
     def analyze(self, patch: str):
 
         prompt = f"""
-You are an expert Code Quality Reviewer.
+You are an experienced Software Test Engineer.
 
 Analyze the following GitHub Pull Request.
 
-Focus ONLY on code quality.
+Focus ONLY on testing.
 
 Check for:
 
-- Poor naming conventions
-- Code duplication
-- Readability
-- Maintainability
-- PEP8 violations
-- Unnecessary complexity
-- Bad coding practices
+- Missing unit tests
+- Missing integration tests
+- Missing edge cases
+- Missing exception handling
+- Missing input validation
+- Test coverage improvements
 
 Return your answer in the following format:
 
-Code Quality Issues:
+Testing Issues:
 - ...
 
 Severity:
@@ -50,10 +49,10 @@ Patch:
             ]
         )
 
-        print(f"Code Quality Agent took {time.time() - start:.2f} seconds")
+        print(f"Testing Agent took {time.time() - start:.2f} seconds")
 
         return {
-            "agent": "Code Quality Agent",
+            "agent": "Testing Agent",
             "status": "Analysis Completed",
             "analysis": response["message"]["content"]
         }

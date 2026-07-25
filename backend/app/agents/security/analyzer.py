@@ -1,4 +1,5 @@
 from app.llm.client import client
+import time
 
 
 class SecurityAgent:
@@ -28,8 +29,11 @@ Patch:
 {patch}
 """
 
+        start = time.time()
+        print("Starting chat...")
+        print("Sending prompt to Ollama...")
         response = client.chat(
-            model="llama3.1",
+            model="llama3.2:1b",
             messages=[
                 {
                     "role": "user",
@@ -37,6 +41,9 @@ Patch:
                 }
             ]
         )
+        print("Received response from Ollama")
+        print("Chat completed")
+        print(f"Security Agent took {time.time() - start:.2f} seconds")
 
         return {
             "agent": "Security Agent",

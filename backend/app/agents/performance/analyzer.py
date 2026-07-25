@@ -2,30 +2,30 @@ from app.llm.client import client
 import time
 
 
-class CodeQualityAgent:
+class PerformanceAgent:
 
     def analyze(self, patch: str):
 
         prompt = f"""
-You are an expert Code Quality Reviewer.
+You are a Senior Performance Engineer.
 
 Analyze the following GitHub Pull Request.
 
-Focus ONLY on code quality.
+Focus ONLY on performance.
 
 Check for:
 
-- Poor naming conventions
-- Code duplication
-- Readability
-- Maintainability
-- PEP8 violations
-- Unnecessary complexity
-- Bad coding practices
+- Time complexity
+- Space complexity
+- Inefficient loops
+- Unnecessary database/API calls
+- Memory issues
+- Expensive operations
+- Performance bottlenecks
 
 Return your answer in the following format:
 
-Code Quality Issues:
+Performance Issues:
 - ...
 
 Severity:
@@ -50,10 +50,10 @@ Patch:
             ]
         )
 
-        print(f"Code Quality Agent took {time.time() - start:.2f} seconds")
+        print(f"Performance Agent took {time.time() - start:.2f} seconds")
 
         return {
-            "agent": "Code Quality Agent",
+            "agent": "Performance Agent",
             "status": "Analysis Completed",
             "analysis": response["message"]["content"]
         }

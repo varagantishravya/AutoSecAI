@@ -16,3 +16,23 @@ __pycache__/
 
 # Logs
 *.log
+backend/.env
+
+# Generated reports
+backend/reports/
+
+# Python cache
+**/__pycache__/
+*.pyc
+
+# Environment files
+.env
+
+# Virtual environment
+.venv/
+
+# Node modules
+frontend/node_modules/
+
+# Vite build output
+frontend/dist/

@@ -7,23 +7,40 @@ class SecurityAgent:
     def analyze(self, patch: str):
 
         prompt = f"""
-You are an expert Application Security Engineer.
+You are a Senior Application Security Engineer reviewing a GitHub Pull Request.
 
-Review the following GitHub Pull Request.
+Analyze ONLY the provided code patch.
 
-Check ONLY for:
+Look ONLY for these vulnerabilities:
 
 - SQL Injection
-- XSS
-- CSRF
+- Cross-Site Scripting (XSS)
+- Cross-Site Request Forgery (CSRF)
 - Hardcoded Secrets
 - Authentication Issues
 - Command Injection
 - Path Traversal
 - Insecure Coding Practices
 
-Only report real security vulnerabilities.
-If none are found, say "No security vulnerabilities found."
+Rules:
+
+1. Report ONLY vulnerabilities directly visible in the patch.
+2. Do NOT assume hidden code exists.
+3. If there is not enough evidence, say:
+   "No security vulnerabilities found."
+4. Do NOT invent vulnerabilities.
+5. Keep the response concise.
+
+Return exactly in this format:
+
+Security Issues:
+- ...
+
+Severity:
+- Low / Medium / High
+
+Recommendations:
+- ...
 
 Patch:
 {patch}

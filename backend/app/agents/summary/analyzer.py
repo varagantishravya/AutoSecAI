@@ -26,18 +26,36 @@ Testing Review:
 Documentation Review:
 {documentation}
 
-Create a FINAL Pull Request Review.
+Generate a Final Pull Request Review.
 
-Your response should contain:
+Your report MUST contain the following sections:
 
 1. Overall Summary
+
 2. Key Strengths
+
 3. Major Issues
-4. Recommendation:
-   - Approve
-   - Approve with Minor Changes
-   - Request Changes
-5. Overall PR Score (out of 10)
+
+4. Severity Summary
+
+Report exactly like this:
+
+Critical : <number>
+High : <number>
+Medium : <number>
+Low : <number>
+
+5. Overall PR Score (0-10)
+
+6. Recommendation
+
+Choose ONLY ONE:
+
+- Approve
+- Approve with Minor Changes
+- Request Changes
+
+Base the severity counts on the issues identified by all agents.
 
 Keep the report professional and concise.
 """

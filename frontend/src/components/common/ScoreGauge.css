@@ -1,0 +1,42 @@
+/* ScoreGauge — animated circular score visualisation */
+
+.score-gauge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 140px;
+  height: 140px;
+}
+
+.score-gauge__svg {
+  width: 100%;
+  height: 100%;
+}
+
+.score-gauge__track {
+  opacity: 0.25;
+}
+
+.score-gauge__progress {
+  transition: stroke-dashoffset 1s ease-out, stroke 0.5s ease;
+}
+
+.score-gauge__label {
+  position: absolute;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.score-gauge__value {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.score-gauge__max {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-muted, #64748b);
+}

@@ -7,40 +7,53 @@ class SecurityAgent:
     def analyze(self, patch: str):
 
         prompt = f"""
-You are a Senior Application Security Engineer reviewing a GitHub Pull Request.
+You are a Senior Application Security Reviewer.
 
-Analyze ONLY the provided code patch.
+Your ONLY task is to review the GitHub Pull Request PATCH below.
 
-Look ONLY for these vulnerabilities:
+STRICT RULES:
 
+1. Analyze ONLY the code that appears in the patch.
+
+2. NEVER review the whole project.
+
+3. NEVER invent missing files.
+
+4. NEVER assume missing code.
+
+5. NEVER suggest features that are not part of the patch.
+
+6. If a vulnerability is NOT directly visible inside the modified lines,
+reply:
+
+"Cannot determine from the supplied patch."
+
+7. Never report:
 - SQL Injection
-- Cross-Site Scripting (XSS)
-- Cross-Site Request Forgery (CSRF)
-- Hardcoded Secrets
-- Authentication Issues
-- Command Injection
+- XSS
+- CSRF
 - Path Traversal
-- Insecure Coding Practices
+- Authentication
+- Authorization
+unless the modified code directly introduces them.
 
-Rules:
+8. Do NOT make assumptions.
 
-1. Report ONLY vulnerabilities directly visible in the patch.
-2. Do NOT assume hidden code exists.
-3. If there is not enough evidence, say:
-   "No security vulnerabilities found."
-4. Do NOT invent vulnerabilities.
-5. Keep the response concise.
+9. If no security issue exists, reply exactly:
 
-Return exactly in this format:
+"No security issues found."
 
-Security Issues:
-- ...
+For every issue include:
 
 Severity:
-- Low / Medium / High
+File:
+Line:
+Explanation:
+Recommendation:
 
-Recommendations:
-- ...
+Return Markdown only.
+
+
 
 Patch:
 {patch}
@@ -49,21 +62,28 @@ Patch:
         start = time.time()
         print("Starting chat...")
         print("Sending prompt to Ollama...")
-        response = client.chat(
-            model="llama3.2:1b",
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
-        )
-        print("Received response from Ollama")
+
+        try:
+            response = client.chat(
+                model="llama3.2:1b",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ]
+            )
+            analysis = response["message"]["content"]
+            print("Received response from Ollama")
+        except Exception as e:
+            print(f"SecurityAgent ERROR: {e}")
+            analysis = f"Security analysis unavailable — LLM error: {str(e)}"
+
         print("Chat completed")
         print(f"Security Agent took {time.time() - start:.2f} seconds")
 
         return {
             "agent": "Security Agent",
             "status": "Analysis Completed",
-            "analysis": response["message"]["content"]
+            "analysis": analysis
         }

@@ -7,31 +7,24 @@ class TestingAgent:
     def analyze(self, patch: str):
 
         prompt = f"""
-You are an experienced Software Test Engineer.
+You are a Senior QA Engineer conducting a Test Coverage Review.
 
-Analyze the following GitHub Pull Request.
+Your ONLY task is to review the GitHub Pull Request PATCH below.
 
-Focus ONLY on testing.
+STRICT RULES:
+1. Suggest ONLY tests that directly correspond to the modified code.
+2. Do NOT invent unrelated test cases.
+3. Do NOT suggest testing code that was not changed.
+4. If the patch needs no additional tests, reply exactly: "No additional tests required."
 
-Check for:
+For every missing test, include:
 
-- Missing unit tests
-- Missing integration tests
-- Missing edge cases
-- Missing exception handling
-- Missing input validation
-- Test coverage improvements
+Test Case:
+Type: (Unit / Integration / E2E)
+What to test:
+Expected behaviour:
 
-Return your answer in the following format:
-
-Testing Issues:
-- ...
-
-Severity:
-- Low / Medium / High
-
-Recommendations:
-- ...
+Return Markdown only.
 
 Patch:
 {patch}
@@ -39,20 +32,25 @@ Patch:
 
         start = time.time()
 
-        response = client.chat(
-            model="llama3.2:1b",
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
-        )
+        try:
+            response = client.chat(
+                model="llama3.2:1b",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ]
+            )
+            analysis = response["message"]["content"]
+        except Exception as e:
+            print(f"TestingAgent ERROR: {e}")
+            analysis = f"Testing analysis unavailable — LLM error: {str(e)}"
 
         print(f"Testing Agent took {time.time() - start:.2f} seconds")
 
         return {
             "agent": "Testing Agent",
             "status": "Analysis Completed",
-            "analysis": response["message"]["content"]
+            "analysis": analysis
         }

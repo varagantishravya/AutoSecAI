@@ -1,0 +1,77 @@
+/*
+ * AutoSecAI — Design Tokens
+ * ==========================
+ * Central CSS custom properties for consistent theming.
+ * Import this file in index.css or main.jsx.
+ */
+
+:root {
+  /* ── Brand colours ─────────────────────────────── */
+  --color-primary:      #2563eb;
+  --color-primary-dark:  #1d4ed8;
+  --color-primary-light: #dbeafe;
+
+  /* ── Neutral palette ───────────────────────────── */
+  --color-bg:           #f8fafc;
+  --color-surface:      #ffffff;
+  --color-text:         #0f172a;
+  --color-text-muted:   #64748b;
+  --color-text-light:   #cbd5e1;
+  --color-border:       #e2e8f0;
+  --color-dark:         #0f172a;
+
+  /* ── Severity colours ──────────────────────────── */
+  --color-critical:     #dc2626;
+  --color-critical-bg:  #fef2f2;
+  --color-high:         #ea580c;
+  --color-high-bg:      #fff7ed;
+  --color-medium:       #d97706;
+  --color-medium-bg:    #fffbeb;
+  --color-low:          #16a34a;
+  --color-low-bg:       #f0fdf4;
+
+  /* ── Score gauge colours ───────────────────────── */
+  --color-score-great:  #16a34a;
+  --color-score-good:   #65a30d;
+  --color-score-ok:     #d97706;
+  --color-score-bad:    #dc2626;
+
+  /* ── Typography ────────────────────────────────── */
+  --font-family:        "Inter", "Segoe UI", Arial, sans-serif;
+  --font-size-xs:       12px;
+  --font-size-sm:       14px;
+  --font-size-base:     16px;
+  --font-size-lg:       18px;
+  --font-size-xl:       20px;
+  --font-size-2xl:      24px;
+  --font-size-3xl:      32px;
+  --font-size-4xl:      48px;
+  --font-size-5xl:      58px;
+
+  /* ── Spacing ───────────────────────────────────── */
+  --space-xs:   4px;
+  --space-sm:   8px;
+  --space-md:   16px;
+  --space-lg:   24px;
+  --space-xl:   32px;
+  --space-2xl:  48px;
+  --space-3xl:  64px;
+  --space-4xl:  80px;
+
+  /* ── Radius ────────────────────────────────────── */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   12px;
+  --radius-xl:   20px;
+  --radius-full: 9999px;
+
+  /* ── Shadows ───────────────────────────────────── */
+  --shadow-sm:  0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md:  0 5px 15px rgba(0, 0, 0, 0.08);
+  --shadow-lg:  0 10px 30px rgba(0, 0, 0, 0.10);
+  --shadow-xl:  0 10px 35px rgba(0, 0, 0, 0.12);
+
+  /* ── Transitions ───────────────────────────────── */
+  --transition-fast: 0.2s ease;
+  --transition-base: 0.3s ease;
+}

@@ -7,32 +7,26 @@ class PerformanceAgent:
     def analyze(self, patch: str):
 
         prompt = f"""
-You are a Senior Performance Engineer.
+You are a Senior Performance Engineer conducting a Performance Review.
 
-Analyze the following GitHub Pull Request.
+Your ONLY task is to review the GitHub Pull Request PATCH below.
 
-Focus ONLY on performance.
+STRICT RULES:
+1. Analyze ONLY the modified lines in the patch.
+2. Report only performance issues that are directly visible (e.g., inefficient loops, unnecessary DB calls, blocking I/O).
+3. Do NOT invent unrelated improvements.
+4. If no performance issues exist, reply exactly: "No performance issues found."
 
-Check for:
+For every issue found, include:
 
-- Time complexity
-- Space complexity
-- Inefficient loops
-- Unnecessary database/API calls
-- Memory issues
-- Expensive operations
-- Performance bottlenecks
+Issue:
+Severity: (High / Medium / Low)
+File:
+Line:
+Explanation:
+Recommendation:
 
-Return your answer in the following format:
-
-Performance Issues:
-- ...
-
-Severity:
-- Low / Medium / High
-
-Recommendations:
-- ...
+Return Markdown only.
 
 Patch:
 {patch}
@@ -40,20 +34,25 @@ Patch:
 
         start = time.time()
 
-        response = client.chat(
-            model="llama3.2:1b",
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
-        )
+        try:
+            response = client.chat(
+                model="llama3.2:1b",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ]
+            )
+            analysis = response["message"]["content"]
+        except Exception as e:
+            print(f"PerformanceAgent ERROR: {e}")
+            analysis = f"Performance analysis unavailable — LLM error: {str(e)}"
 
         print(f"Performance Agent took {time.time() - start:.2f} seconds")
 
         return {
             "agent": "Performance Agent",
             "status": "Analysis Completed",
-            "analysis": response["message"]["content"]
+            "analysis": analysis
         }

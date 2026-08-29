@@ -7,32 +7,27 @@ class CodeQualityAgent:
     def analyze(self, patch: str):
 
         prompt = f"""
-You are an expert Code Quality Reviewer.
+You are a Senior Software Engineer conducting a Code Quality Review.
 
-Analyze the following GitHub Pull Request.
+Your ONLY task is to review the GitHub Pull Request PATCH below.
 
-Focus ONLY on code quality.
+STRICT RULES:
+1. Analyze ONLY the modified lines in the patch.
+2. Do NOT rewrite the code.
+3. Do NOT invent functions or suggest unrelated improvements.
+4. Only comment on issues that are directly visible in the patch.
+5. If no code quality issues exist, reply exactly: "No code quality issues found."
 
-Check for:
+For every issue found, include:
 
-- Poor naming conventions
-- Code duplication
-- Readability
-- Maintainability
-- PEP8 violations
-- Unnecessary complexity
-- Bad coding practices
+Issue:
+Severity: (High / Medium / Low)
+File:
+Line:
+Explanation:
+Recommendation:
 
-Return your answer in the following format:
-
-Code Quality Issues:
-- ...
-
-Severity:
-- Low / Medium / High
-
-Recommendations:
-- ...
+Return Markdown only.
 
 Patch:
 {patch}
@@ -40,20 +35,25 @@ Patch:
 
         start = time.time()
 
-        response = client.chat(
-            model="llama3.2:1b",
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
-        )
+        try:
+            response = client.chat(
+                model="llama3.2:1b",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ]
+            )
+            analysis = response["message"]["content"]
+        except Exception as e:
+            print(f"CodeQualityAgent ERROR: {e}")
+            analysis = f"Code quality analysis unavailable — LLM error: {str(e)}"
 
         print(f"Code Quality Agent took {time.time() - start:.2f} seconds")
 
         return {
             "agent": "Code Quality Agent",
             "status": "Analysis Completed",
-            "analysis": response["message"]["content"]
+            "analysis": analysis
         }

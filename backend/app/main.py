@@ -1,45 +1,28 @@
 from fastapi import FastAPI
-from app.models.review import ReviewRequest
-from app.coordinator.coordinator import CoordinatorAgent
-from app.github.repositories import get_repositories
-from app.github.pull_requests import get_pull_requests
-from app.github.changed_files import get_changed_files
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.routes import router
+from app.database.database import init_db
+
 app = FastAPI(
     title="AutoSecAI",
     description="A Multi-Agent LLM Framework for Intelligent Pull Request Review",
-    version="1.0.0"
+    version="1.0.0",
 )
 
-coordinator = CoordinatorAgent()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
+# Initialise the database (creates tables on first run)
+init_db()
 
-@app.get("/")
-def home():
-    return {"message": "Welcome to AutoSecAI 🚀"}
-
-
-@app.get("/health")
-def health():
-    return {"status": "Running Successfully"}
-
-
-@app.get("/repositories")
-def repositories():
-    return get_repositories()
-
-
-@app.get("/pull-requests")
-def pull_requests(owner: str, repo: str):
-    return get_pull_requests(owner, repo)
-
-@app.get("/changed-files")
-def changed_files(owner: str, repo: str, pull_request: int):
-    return get_changed_files(owner, repo, pull_request)
-
-@app.post("/review")
-def review_pull_request(request: ReviewRequest):
-    return coordinator.review_pull_request(
-        request.repository,
-        request.pull_request
-    )
-
+# Mount all API routes
+app.include_router(router)

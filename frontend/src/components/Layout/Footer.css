@@ -1,0 +1,92 @@
+/* Footer — site-wide footer */
+
+.footer {
+  background: var(--color-dark, #0f172a);
+  color: var(--color-text-light, #cbd5e1);
+  padding: 50px 80px 0;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  flex-wrap: wrap;
+  padding-bottom: 40px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ── Brand ───────────────────────────────────── */
+
+.footer-brand {
+  max-width: 340px;
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.footer-logo-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md, 10px);
+  background: var(--color-primary, #2563eb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+}
+
+.footer-logo-text {
+  font-size: var(--font-size-xl, 20px);
+  font-weight: 700;
+  color: white;
+}
+
+.footer-tagline {
+  font-size: var(--font-size-sm, 14px);
+  line-height: 1.6;
+  color: var(--color-text-light, #cbd5e1);
+}
+
+/* ── Link columns ────────────────────────────── */
+
+.footer-links h4 {
+  color: white;
+  font-size: var(--font-size-base, 16px);
+  margin-bottom: 14px;
+}
+
+.footer-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  padding: 5px 0;
+  font-size: var(--font-size-sm, 14px);
+}
+
+.footer-links a {
+  color: var(--color-text-light, #cbd5e1);
+  text-decoration: none;
+  transition: color var(--transition-fast, 0.2s ease);
+}
+
+.footer-links a:hover {
+  color: white;
+}
+
+/* ── Bottom bar ──────────────────────────────── */
+
+.footer-bottom {
+  text-align: center;
+  padding: 20px 0;
+  font-size: var(--font-size-xs, 12px);
+  color: rgba(255, 255, 255, 0.4);
+}

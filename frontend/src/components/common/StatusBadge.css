@@ -1,0 +1,52 @@
+/* StatusBadge — colour-coded severity pills */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: var(--radius-full, 9999px);
+  font-size: var(--font-size-sm, 14px);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  transition: transform var(--transition-fast, 0.2s ease);
+}
+
+.status-badge:hover {
+  transform: scale(1.05);
+}
+
+.status-badge__count {
+  background: rgba(255, 255, 255, 0.35);
+  padding: 2px 7px;
+  border-radius: var(--radius-full, 9999px);
+  font-size: var(--font-size-xs, 12px);
+  font-weight: 700;
+}
+
+/* ── Severity variants ────────────────────────── */
+
+.status-badge--critical {
+  background: var(--color-critical-bg, #fef2f2);
+  color: var(--color-critical, #dc2626);
+  border: 1px solid var(--color-critical, #dc2626);
+}
+
+.status-badge--high {
+  background: var(--color-high-bg, #fff7ed);
+  color: var(--color-high, #ea580c);
+  border: 1px solid var(--color-high, #ea580c);
+}
+
+.status-badge--medium {
+  background: var(--color-medium-bg, #fffbeb);
+  color: var(--color-medium, #d97706);
+  border: 1px solid var(--color-medium, #d97706);
+}
+
+.status-badge--low {
+  background: var(--color-low-bg, #f0fdf4);
+  color: var(--color-low, #16a34a);
+  border: 1px solid var(--color-low, #16a34a);
+}

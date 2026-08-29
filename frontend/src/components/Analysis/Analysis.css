@@ -1,0 +1,162 @@
+.analysis{
+
+padding:80px;
+
+display:flex;
+
+justify-content:center;
+
+background:white;
+
+}
+
+.analysis-card{
+
+width:700px;
+
+background:white;
+
+padding:40px;
+
+border-radius:20px;
+
+box-shadow:0 10px 35px rgba(0,0,0,.08);
+
+}
+
+.analysis-card h2{
+
+margin-bottom:35px;
+
+color:#0f172a;
+
+}
+
+.input-group{
+
+display:flex;
+
+flex-direction:column;
+
+margin-bottom:25px;
+
+}
+
+.input-group label{
+
+margin-bottom:10px;
+
+font-weight:600;
+
+color:#475569;
+
+}
+
+.input-group select{
+
+padding:15px;
+
+border-radius:10px;
+
+border:1px solid #dbe4f0;
+
+font-size:16px;
+
+}
+
+.analyze-btn{
+
+width:100%;
+
+padding:18px;
+
+background:#2563eb;
+
+color:white;
+
+font-size:18px;
+
+border:none;
+
+border-radius:12px;
+
+cursor:pointer;
+
+margin-top:15px;
+
+transition:.3s;
+
+}
+
+.analyze-btn:hover{
+
+background:#1d4ed8;
+
+}
+
+.results-card{
+
+    margin-top:40px;
+
+    background:white;
+
+    padding:30px;
+
+    border-radius:12px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+}
+
+.agent-result{
+
+    margin-top:30px;
+
+    padding:20px;
+
+    background:#f8fafc;
+
+    border-radius:10px;
+
+    border-left:5px solid #2563eb;
+}
+
+.agent-result pre{
+
+    white-space:pre-wrap;
+
+    font-family:inherit;
+
+    line-height:1.6;
+}
+
+/* ── Results summary layout ──────────────────── */
+
+.results-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    padding: 20px 0;
+    flex-wrap: wrap;
+}
+
+.results-score-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.results-recommendation {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-primary, #2563eb);
+    text-align: center;
+}
+
+.results-severity-section {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}

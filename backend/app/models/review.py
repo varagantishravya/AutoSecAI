@@ -4,3 +4,10 @@ class ReviewRequest(BaseModel):
     owner: str
     repository: str
     pull_request: int
+
+
+class CommentRequest(BaseModel):
+    owner: str
+    repository: str
+    pull_request: int
+    comment: str

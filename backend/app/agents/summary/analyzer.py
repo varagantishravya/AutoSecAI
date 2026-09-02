@@ -62,20 +62,25 @@ Keep the report professional and concise.
 
         start = time.time()
 
-        response = client.chat(
-            model="llama3.2:1b",
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
-        )
+        try:
+            response = client.chat(
+                model="llama3.2:1b",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ]
+            )
+            analysis = response["message"]["content"]
+        except Exception as e:
+            print(f"SummaryAgent ERROR: {e}")
+            analysis = f"Summary analysis unavailable — LLM error: {str(e)}"
 
         print(f"Summary Agent took {time.time() - start:.2f} seconds")
 
         return {
             "agent": "Summary Agent",
             "status": "Analysis Completed",
-            "analysis": response["message"]["content"]
+            "analysis": analysis
         }

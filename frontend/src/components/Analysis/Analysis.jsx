@@ -15,19 +15,68 @@ function Analysis() {
   const [selectedPullRequest, setSelectedPullRequest] = useState("");
   const [loading, setLoading] = useState(false);
   const [reviewResult, setReviewResult] = useState(null);
+  const [commenting, setCommenting] = useState(false);
+  const [commentPosted, setCommentPosted] = useState(false);
+
+  async function handlePostComment() {
+    if (!selectedRepository || !selectedPullRequest || !reviewResult) return;
+    try {
+      setCommenting(true);
+      const summaryText = `## 🤖 AutoSecAI Multi-Agent PR Review
+**Overall Score**: ${reviewResult.summary.overall_score}
+**Recommendation**: ${reviewResult.summary.recommendation}
+
+| Severity | Count |
+| --- | --- |
+| 🚨 Critical | ${reviewResult.summary.critical} |
+| ⚠️ High | ${reviewResult.summary.high} |
+| 🟡 Medium | ${reviewResult.summary.medium} |
+| 🟢 Low | ${reviewResult.summary.low} |
+
+*Generated automatically by AutoSecAI.*`;
+
+      await api.post("/post-comment", {
+        owner: selectedOwner,
+        repository: selectedRepository,
+        pull_request: Number(selectedPullRequest),
+        comment: summaryText,
+      });
+      setCommentPosted(true);
+      alert("Successfully posted review comment directly to GitHub PR! 🎉");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to post comment to GitHub. Make sure your token has repo access permissions.");
+    } finally {
+      setCommenting(false);
+    }
+  }
+
 
   useEffect(() => {
     loadRepositories();
+
+    function handleAuthChange() {
+      setSelectedRepository("");
+      setSelectedOwner("");
+      setSelectedPullRequest("");
+      setPullRequests([]);
+      loadRepositories();
+    }
+
+    window.addEventListener("user-auth-changed", handleAuthChange);
+    return () => window.removeEventListener("user-auth-changed", handleAuthChange);
   }, []);
 
   async function loadRepositories() {
     try {
       const response = await api.get("/repositories");
-      setRepositories(response.data);
+      setRepositories(response.data || []);
     } catch (error) {
       console.error("Error loading repositories:", error);
+      setRepositories([]);
     }
   }
+
 
   async function loadPullRequests(owner, repository) {
     try {
@@ -184,7 +233,7 @@ function Analysis() {
 
     </div>
 
-    <div style={{ marginTop: "20px", marginBottom: "20px", textAlign: "center" }}>
+    <div style={{ marginTop: "20px", marginBottom: "20px", textAlign: "center", display: "flex", gap: "12px", justifyContent: "center" }}>
       <button 
         className="analyze-btn" 
         onClick={() => {
@@ -194,7 +243,17 @@ function Analysis() {
       >
         📥 Download Full Report
       </button>
+
+      <button
+        className="analyze-btn"
+        style={{ backgroundColor: commentPosted ? "#10b981" : "#8b5cf6" }}
+        onClick={handlePostComment}
+        disabled={commenting || commentPosted}
+      >
+        {commentPosted ? "✓ Posted to GitHub PR" : commenting ? "Posting..." : "💬 Post Review to GitHub PR"}
+      </button>
     </div>
+
 
     <hr />
 

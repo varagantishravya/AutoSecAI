@@ -1,13 +1,12 @@
-from app.github.client import github_client
+from app.github.client import get_github_client
 
 
-def get_changed_files(owner: str, repo_name: str, pr_number: int):
+def get_changed_files(owner: str, repo_name: str, pr_number: int, token: str | None = None):
     """
     Fetch all changed files from a pull request.
     """
-
-    repo = github_client.get_repo(f"{owner}/{repo_name}")
-
+    client = get_github_client(token)
+    repo = client.get_repo(f"{owner}/{repo_name}")
     pull_request = repo.get_pull(pr_number)
 
     changed_files = []
@@ -25,4 +24,4 @@ def get_changed_files(owner: str, repo_name: str, pr_number: int):
             }
         )
 
-    return changed_files
+    return changed_files

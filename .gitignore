@@ -36,3 +36,7 @@ frontend/node_modules/
 
 # Vite build output
 frontend/dist/
+
+# Database files
+backend/data/
+

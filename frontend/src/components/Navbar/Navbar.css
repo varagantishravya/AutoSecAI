@@ -77,25 +77,162 @@
 }
 
 .login-btn{
-
     background:#2563eb;
-
     color:white;
-
     border:none;
-
-    padding:12px 22px;
-
+    padding:10px 18px;
     border-radius:10px;
-
     cursor:pointer;
-
-    font-size:15px;
-
+    font-size:14px;
+    font-weight: 500;
     transition:.3s;
 }
 
 .login-btn:hover{
-
     background:#1d4ed8;
 }
+
+.auth-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pat-btn {
+    background: #334155;
+    color: #f8fafc;
+    border: 1px solid #475569;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: .25s;
+}
+
+.pat-btn:hover {
+    background: #475569;
+    border-color: #64748b;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #1e293b;
+    padding: 6px 14px;
+    border-radius: 30px;
+    border: 1px solid #334155;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #38bdf8;
+}
+
+.logout-btn {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: .25s;
+}
+
+.logout-btn:hover {
+    background: #dc2626;
+}
+
+/* PAT Modal Styles */
+.pat-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.pat-modal {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 30px;
+    width: 90%;
+    max-width: 480px;
+    color: white;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.pat-modal h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 20px;
+    color: #f8fafc;
+}
+
+.pat-modal p {
+    color: #94a3b8;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.pat-input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid #475569;
+    background: #0f172a;
+    color: white;
+    font-size: 14px;
+    box-sizing: border-box;
+    outline: none;
+    margin-bottom: 12px;
+}
+
+.pat-input:focus {
+    border-color: #3b82f6;
+}
+
+.pat-error {
+    color: #f87171;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.cancel-btn {
+    background: #475569;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.cancel-btn:hover {
+    background: #64748b;
+}

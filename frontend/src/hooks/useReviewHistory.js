@@ -34,7 +34,15 @@ export default function useReviewHistory(limit = 50) {
 
   useEffect(() => {
     fetchReviews();
+
+    function handleAuthChange() {
+      fetchReviews();
+    }
+
+    window.addEventListener("user-auth-changed", handleAuthChange);
+    return () => window.removeEventListener("user-auth-changed", handleAuthChange);
   }, [fetchReviews]);
+
 
   return { reviews, loading, error, refresh: fetchReviews };
 }

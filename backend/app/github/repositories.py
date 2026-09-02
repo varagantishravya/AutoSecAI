@@ -1,11 +1,12 @@
-from app.github.client import github_client
+from app.github.client import get_github_client
 
 
-def get_repositories():
+def get_repositories(token: str | None = None):
     """
-    Fetch all repositories for the authenticated user.
+    Fetch all repositories for the authenticated user (or fallback client).
     """
-    user = github_client.get_user()
+    client = get_github_client(token)
+    user = client.get_user()
 
     repositories = []
 
@@ -19,4 +20,4 @@ def get_repositories():
             }
         )
 
-    return repositories
+    return repositories

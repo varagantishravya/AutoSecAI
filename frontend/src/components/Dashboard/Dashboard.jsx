@@ -1,12 +1,29 @@
+import { useState } from "react";
 import "./Dashboard.css";
 import useReviewHistory from "../../hooks/useReviewHistory";
 import StatusBadge from "../common/StatusBadge";
+import ScoreGauge from "../common/ScoreGauge";
+import api from "../../services/api";
 
 /**
- * Dashboard — shows past review history and aggregate stats.
+ * Dashboard — shows past review history and aggregate stats with detailed modal view.
  */
 function Dashboard() {
   const { reviews, loading, error, refresh } = useReviewHistory();
+  const [selectedReview, setSelectedReview] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
+
+  async function handleRowClick(reviewId) {
+    try {
+      setModalLoading(true);
+      const response = await api.get(`/review-history/${reviewId}`);
+      setSelectedReview(response.data);
+    } catch (err) {
+      console.error("Failed to load review details:", err);
+    } finally {
+      setModalLoading(false);
+    }
+  }
 
   // ── Aggregate stats ──────────────────────────────────────────
   const totalReviews = reviews.length;
@@ -68,6 +85,7 @@ function Dashboard() {
       {/* Reviews table */}
       {reviews.length > 0 && (
         <div className="dashboard-table-wrap">
+          <p className="table-hint">💡 Click any row to view full review breakdown</p>
           <table className="dashboard-table">
             <thead>
               <tr>
@@ -85,7 +103,7 @@ function Dashboard() {
             </thead>
             <tbody>
               {reviews.map((r) => (
-                <tr key={r.id}>
+                <tr key={r.id} onClick={() => handleRowClick(r.id)} className="clickable-row">
                   <td>{r.id}</td>
                   <td className="td-repo">
                     {r.owner}/{r.repo}
@@ -130,8 +148,46 @@ function Dashboard() {
           </table>
         </div>
       )}
+
+      {/* Review Detail Modal */}
+      {selectedReview && (
+        <div className="review-modal-overlay" onClick={() => setSelectedReview(null)}>
+          <div className="review-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>
+                Review #{selectedReview.id}: {selectedReview.owner}/{selectedReview.repo} PR #{selectedReview.pull_request}
+              </h3>
+              <button className="modal-close" onClick={() => setSelectedReview(null)}>
+                ✖
+              </button>
+            </div>
+
+            <div className="modal-summary">
+              <ScoreGauge score={selectedReview.overall_score} />
+              <div className="modal-badges">
+                <StatusBadge severity="critical" count={selectedReview.critical} />
+                <StatusBadge severity="high" count={selectedReview.high} />
+                <StatusBadge severity="medium" count={selectedReview.medium} />
+                <StatusBadge severity="low" count={selectedReview.low} />
+              </div>
+            </div>
+
+            {selectedReview.results_json && Array.isArray(selectedReview.results_json) && (
+              <div className="modal-agent-results">
+                {selectedReview.results_json.map((res, i) => (
+                  <div key={i} className="agent-result-box">
+                    <h4>{res.agent}</h4>
+                    <pre>{res.analysis}</pre>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
 
 export default Dashboard;
+

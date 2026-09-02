@@ -1,10 +1,10 @@
-/* Footer — site-wide footer */
-
 .footer {
-  background: var(--color-dark, #0f172a);
-  color: var(--color-text-light, #cbd5e1);
-  padding: 50px 80px 0;
+  background: #060911;
+  color: #94a3b8;
+  padding: 60px 80px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
+
 
 .footer-content {
   display: flex;

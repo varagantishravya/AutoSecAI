@@ -1,16 +1,16 @@
-from app.github.client import github_client
+from app.github.client import get_github_client
 
 
-def get_pull_requests(owner: str, repo_name: str):
+def get_pull_requests(owner: str, repo_name: str, token: str | None = None):
     """
     Fetch all open pull requests of a repository.
     """
-
-    repo = github_client.get_repo(f"{owner}/{repo_name}")
+    client = get_github_client(token)
+    repo = client.get_repo(f"{owner}/{repo_name}")
 
     pull_requests = []
 
-    for pr in repo.get_pulls(state="open"):
+    for pr in repo.get_pulls(state="all"):
         pull_requests.append(
             {
                 "number": pr.number,
@@ -20,4 +20,4 @@ def get_pull_requests(owner: str, repo_name: str):
             }
         )
 
-    return pull_requests
+    return pull_requests

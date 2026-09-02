@@ -25,4 +25,6 @@ app.add_middleware(
 init_db()
 
 # Mount all API routes
+from app.api.auth import router as auth_router
+app.include_router(auth_router, prefix="/auth")
 app.include_router(router)

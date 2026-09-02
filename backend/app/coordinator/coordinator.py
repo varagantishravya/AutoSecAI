@@ -39,7 +39,8 @@ class CoordinatorAgent:
 
         # --- Severity counts ---
         def extract_count(label: str) -> int:
-            match = re.search(rf'{label}\s*:\s*(\d+)', text, re.IGNORECASE)
+            # Matches: "Medium : 1", "**Medium**: 1", "* Medium: 1", etc. at the start of a line
+            match = re.search(rf'(?m)^[*#\s]*{label}[*#\s]*:\s*(\d+)', text, re.IGNORECASE)
             return int(match.group(1)) if match else 0
 
         critical = extract_count("critical")
@@ -48,7 +49,7 @@ class CoordinatorAgent:
         low = extract_count("low")
 
         # --- Score: look for patterns like "8/10" or "7.5/10" ---
-        score_match = re.search(r'(\d+(?:\.\d+)?)\s*/\s*10', text, re.IGNORECASE)
+        score_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:/|out of)\s*10', text, re.IGNORECASE)
         if score_match:
             score = float(score_match.group(1))
             score = max(0.0, min(10.0, score))   # clamp to [0, 10]
@@ -76,16 +77,20 @@ class CoordinatorAgent:
             "agents_reviewed": 6,   # 5 specialist agents + 1 summary agent
         }
 
-    def limit_patch(self, patch: str, max_lines: int = 120) -> str:
-        """Truncate patch to max_lines to avoid overflowing the LLM context window."""
+    def limit_patch(self, patch: str, max_lines: int = 250, max_chars: int = 4000) -> str:
+        """Truncate patch to max_lines / max_chars to prevent LLM context and rate limit overflows."""
         lines = patch.splitlines()
         if len(lines) > max_lines:
-            return "\n".join(lines[:max_lines])
+            patch = "\n".join(lines[:max_lines])
+        if len(patch) > max_chars:
+            patch = patch[:max_chars] + "\n... [Truncated for rate-limit optimization] ..."
         return patch
 
-    def review_pull_request(self, owner: str, repo: str, pull_request: int) -> dict:
+    def review_pull_request(self, owner: str, repo: str, pull_request: int, token: str | None = None, user_id: int | None = None) -> dict:
+        import time
 
-        files = get_changed_files(owner, repo, pull_request)
+        files = get_changed_files(owner, repo, pull_request, token=token)
+
         security_patch = ""
         performance_patch = ""
         testing_patch = ""
@@ -94,17 +99,24 @@ class CoordinatorAgent:
 
         print(f"Changed files: {len(files)}")
 
+        ignored_extensions = (".lock", "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "cargo.lock", "go.sum", ".min.js", ".min.css", ".map")
+
         for file in files:
             if not file.get("patch"):
                 continue
 
-            filename = file["filename"]
+            filename = file["filename"].lower()
+            
+            # Skip lock & compiled minified assets that clog up context
+            if any(filename.endswith(ext) or ext in filename for ext in ignored_extensions):
+                continue
+                
             patch = file["patch"]
             patch_lower = patch.lower()
 
             # ---------------- Security ----------------
             if (
-                filename.endswith((".py", ".js", ".ts", ".sql"))
+                filename.endswith((".py", ".js", ".ts", ".sql", ".jsx", ".tsx"))
                 or "password" in patch_lower
                 or "secret" in patch_lower
                 or "token" in patch_lower
@@ -117,7 +129,7 @@ class CoordinatorAgent:
 
             # ---------------- Performance ----------------
             if (
-                filename.endswith((".py", ".js", ".ts"))
+                filename.endswith((".py", ".js", ".ts", ".jsx", ".tsx"))
                 or "for " in patch_lower
                 or "while " in patch_lower
                 or ".sort(" in patch_lower
@@ -128,7 +140,7 @@ class CoordinatorAgent:
 
             # ---------------- Testing ----------------
             if (
-                filename.endswith((".py", ".js", ".ts"))
+                filename.endswith((".py", ".js", ".ts", ".jsx", ".tsx"))
                 or "try:" in patch_lower
                 or "except" in patch_lower
                 or "@app.get" in patch_lower
@@ -142,7 +154,7 @@ class CoordinatorAgent:
                 documentation_patch += patch + "\n"
 
             # ---------------- Code Quality ----------------
-            if filename.endswith((".py", ".js", ".ts", ".sql")):
+            if filename.endswith((".py", ".js", ".ts", ".sql", ".jsx", ".tsx")):
                 quality_patch += patch + "\n"
 
         security_patch      = self.limit_patch(security_patch)
@@ -150,6 +162,23 @@ class CoordinatorAgent:
         testing_patch       = self.limit_patch(testing_patch)
         documentation_patch = self.limit_patch(documentation_patch)
         quality_patch       = self.limit_patch(quality_patch)
+
+        # ── RAG Integration ──────────────────────────────────────────────────
+        try:
+            from app.rag.knowledge_base import KnowledgeBase
+            kb = KnowledgeBase()
+            # Use the security patch as a query for relevant knowledge
+            query_text = security_patch[:300]
+            if query_text.strip():
+                docs = kb.search(query_text, top_k=2)
+                if docs:
+                    rag_context = "=== Context from Knowledge Base ===\n"
+                    for doc in docs:
+                        rag_context += doc['text'] + "\n"
+                    rag_context += "===================================\n\n"
+                    security_patch = rag_context + security_patch
+        except Exception as e:
+            print(f"RAG Integration skipped or failed: {e}")
 
         print("=" * 60)
         print("Security Patch:",      len(security_patch.splitlines()),      "lines")
@@ -159,34 +188,27 @@ class CoordinatorAgent:
         print("Quality Patch:",       len(quality_patch.splitlines()),       "lines")
         print("=" * 60)
 
-        # ── Step 1: Run all 5 specialist agents sequentially to avoid Groq rate limits ──────────────────
-        with ThreadPoolExecutor(max_workers=1) as executor:
+        # ── Step 1: Run 5 specialist agents sequentially with small delay to respect rate limits ──
+        print("Executing Security Agent...")
+        security_result = self.security_agent.analyze(security_patch)
+        time.sleep(1.0)
 
-            security_future      = executor.submit(self.security_agent.analyze,      security_patch)
-            quality_future       = executor.submit(self.code_quality_agent.analyze,  quality_patch)
-            performance_future   = executor.submit(self.performance_agent.analyze,   performance_patch)
-            testing_future       = executor.submit(self.testing_agent.analyze,       testing_patch)
-            documentation_future = executor.submit(self.documentation_agent.analyze, documentation_patch)
+        print("Executing Code Quality Agent...")
+        quality_result = self.code_quality_agent.analyze(quality_patch)
+        time.sleep(1.0)
 
-            print("Waiting for Security Agent...")
-            security_result = security_future.result()
-            print("Security Agent finished.")
+        print("Executing Performance Agent...")
+        performance_result = self.performance_agent.analyze(performance_patch)
+        time.sleep(1.0)
 
-            print("Waiting for Code Quality Agent...")
-            quality_result = quality_future.result()
-            print("Code Quality Agent finished.")
+        print("Executing Testing Agent...")
+        testing_result = self.testing_agent.analyze(testing_patch)
+        time.sleep(1.0)
 
-            print("Waiting for Performance Agent...")
-            performance_result = performance_future.result()
-            print("Performance Agent finished.")
+        print("Executing Documentation Agent...")
+        documentation_result = self.documentation_agent.analyze(documentation_patch)
+        time.sleep(1.0)
 
-            print("Waiting for Testing Agent...")
-            testing_result = testing_future.result()
-            print("Testing Agent finished.")
-
-            print("Waiting for Documentation Agent...")
-            documentation_result = documentation_future.result()
-            print("Documentation Agent finished.")
 
         # ── Step 2: Run SummaryAgent with all 5 specialist results ───────────
         print("Waiting for Summary Agent...")
@@ -215,7 +237,8 @@ class CoordinatorAgent:
         report_path = generate_report(owner, repo, pull_request, summary, all_results)
 
         # ── Step 5: Persist the review in the database ───────────────────
-        review_id = save_review(owner, repo, pull_request, summary, all_results, report_path)
+        review_id = save_review(owner, repo, pull_request, summary, all_results, report_path, user_id=user_id)
+
 
         return {
             "status":  "Review Completed",

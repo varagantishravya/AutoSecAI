@@ -13,7 +13,12 @@ Usage:
 
 from __future__ import annotations
 import os
-import chromadb
+
+try:
+    import chromadb
+except Exception:
+    chromadb = None
+
 from typing import Any
 
 # Store the Chroma DB inside backend/data/chroma
@@ -22,23 +27,27 @@ _CHROMA_DIR = os.path.join(_BASE_DIR, "data", "chroma")
 
 class KnowledgeBase:
     """
-    ChromaDB-backed document store for RAG-based context retrieval.
+    ChromaDB-backed document store for RAG-based context retrieval (with fallback).
     """
 
     def __init__(self) -> None:
-        os.makedirs(_CHROMA_DIR, exist_ok=True)
-        self.client = chromadb.PersistentClient(path=_CHROMA_DIR)
-        
-        # Create or get a collection. We use the default embedding model provided by ChromaDB.
-        self.collection = self.client.get_or_create_collection(name="autosecai_knowledge")
-        
-        # Auto-seed OWASP security rules if empty
-        if self.collection.count() == 0:
+        self.client = None
+        self.collection = None
+        if chromadb is not None:
             try:
-                from app.rag.seed_knowledge import seed_default_knowledge
-                seed_default_knowledge(self)
+                os.makedirs(_CHROMA_DIR, exist_ok=True)
+                self.client = chromadb.PersistentClient(path=_CHROMA_DIR)
+                self.collection = self.client.get_or_create_collection(name="autosecai_knowledge")
+                
+                # Auto-seed OWASP security rules if empty
+                if self.collection.count() == 0:
+                    try:
+                        from app.rag.seed_knowledge import seed_default_knowledge
+                        seed_default_knowledge(self)
+                    except Exception as e:
+                        print(f"Notice: RAG auto-seeding skipped: {e}")
             except Exception as e:
-                print(f"Notice: RAG auto-seeding skipped: {e}")
+                print(f"Notice: ChromaDB init skipped: {e}")
 
 
     # ── Public API ─────────────────────────────────────────────────────
@@ -57,11 +66,12 @@ class KnowledgeBase:
         import uuid
         doc_id = str(uuid.uuid4())
         
-        self.collection.add(
-            documents=[text],
-            metadatas=[metadata or {}],
-            ids=[doc_id]
-        )
+        if self.collection is not None:
+            self.collection.add(
+                documents=[text],
+                metadatas=[metadata or {}],
+                ids=[doc_id]
+            )
         return doc_id
 
     def search(self, query: str, top_k: int = 3) -> list[dict[str, Any]]:
@@ -71,7 +81,7 @@ class KnowledgeBase:
         Each result is a dict with keys: ``text``, ``metadata``, ``score``.
         Results are sorted by descending relevance score.
         """
-        if not query.strip():
+        if not query.strip() or self.collection is None:
             return []
 
         results = self.collection.query(
@@ -97,4 +107,4 @@ class KnowledgeBase:
     @property
     def size(self) -> int:
         """Number of documents currently stored."""
-        return self.collection.count()
+        return self.collection.count() if self.collection is not None else 0
